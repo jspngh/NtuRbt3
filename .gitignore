@@ -4,4 +4,6 @@
 *.JPG
 *CMakeFiles/
 *CMakeCache.txt
+*.cmake
+part_a/Makefile
 part_a/CameraCalibration
