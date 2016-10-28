@@ -7,3 +7,4 @@
 *.cmake
 part_a/Makefile
 part_a/CameraCalibration
+part_a/*.xml

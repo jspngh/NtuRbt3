@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <time.h>
 #include <stdio.h>
 
@@ -427,10 +428,19 @@ int main(int argc, char* argv[])
                 continue;
             remap(view, rview, map1, map2, INTER_LINEAR);
             imshow("Image View", rview);
+            imwrite("images/set2/undistorted_00"+std::to_string(i)+".jpg", rview);
             char c = (char)waitKey();
             if( c  == ESC_KEY || c == 'q' || c == 'Q' )
                 break;
         }
+
+        std::cout << "remapping last image" << endl;
+        view = imread("./images/set2/DSC_0021.JPG", 1);
+        if(view.empty())
+            std::cout << "Problem loading file!" << endl;
+        remap(view, rview, map1, map2, INTER_LINEAR);
+        imshow("Image View", rview);
+        imwrite("images/set4/undistorted_last.jpg", rview);
     }
     //! [show_results]
 
