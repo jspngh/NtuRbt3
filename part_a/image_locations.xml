@@ -1,8 +1,23 @@
 <?xml version="1.0"?>
 <opencv_storage>
 <images>
-images/DSC_0024.JPG
-images/DSC_0025.JPG
-images/DSC_0026.JPG
+  images/set2/DSC_0001.JPG
+  images/set2/DSC_0002.JPG
+  images/set2/DSC_0003.JPG
+  images/set2/DSC_0004.JPG
+  images/set2/DSC_0005.JPG
+  images/set2/DSC_0006.JPG
+  images/set2/DSC_0007.JPG
+  images/set2/DSC_0008.JPG
+  images/set2/DSC_0009.JPG
+  images/set2/DSC_0010.JPG
+  images/set2/DSC_0011.JPG
+  images/set2/DSC_0012.JPG
+  images/set2/DSC_0013.JPG
+  images/set2/DSC_0016.JPG
+  images/set2/DSC_0017.JPG
+  images/set2/DSC_0018.JPG
+  images/set2/DSC_0019.JPG
+  images/set2/DSC_0020.JPG
 </images>
 </opencv_storage>
