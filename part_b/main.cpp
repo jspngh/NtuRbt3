@@ -13,97 +13,165 @@
 #include <string>
 #include <time.h>
 
-
 #define THRESHOLD 220
 
 using namespace cv;
 using namespace std;
 
-void image_thresholding(Mat image, int **result);
-void image_segmentation(int **image, int rows, int cols);
-void image_centroid(int **image);
-void image_principle_angle(int **image);
-void grow_region(int** image, int k, int j, int m, int n, int i);
+class Region
+{
+    public:
+        int top; // y coordinate
+        int bottom; // y coordinate
+        int left; // x coordinate
+        int right; // x coordinate
+        int id;
+
+        Region(int id, int top, int bottom, int left, int right);
+};
+
+Region::Region(int id, int top, int bottom, int left, int right)
+{
+    this->id = id;
+    this->top = top;
+    this->bottom = bottom;
+    this->left = left;
+    this->right = right;
+}
+
+class Image
+{
+    public:
+        Mat cvImage;
+        int** mImage;
+        int nr_regions;
+        Region** regions;
+
+        Image(string file_loc);
+        ~Image();
+
+        void thresholding();
+        void segmentation();
+        void find_regions();
+        void find_centroid();
+        void find_principle_angle(Region* region);
+
+        void print_image();
+    private:
+        // region growing algorithm
+        void grow_region(int k, int j, int i);
+};
+
 
 int main(int argc, char* argv[])
 {
-    
-    Mat image = imread("./images/er7-1-small.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+    Image* img = new Image("./images/er7-1-small.jpg");
 
-    int **result = new int*[image.rows];
-    image_thresholding(image, result);
+    img->thresholding();
+    img->segmentation();
+    img->find_regions();
 
-    image_segmentation(result, image.rows, image.cols);
-    
-    // just to test
-    for (int x = 0; x < image.rows; ++x)
-    {
-        for (int y = 0; y < image.cols; ++y)
-        {
-            std::cout << result[x][y] << ' ';
-        }
-        std::cout << std::endl;
-    }
+    img->print_image();
 
-    //namedWindow("image", CV_WINDOW_AUTOSIZE);
-    //imshow("image", image);
-    //waitKey();
-
-    // clean up
-    delete result;
+    delete img;
 }
 
-void image_thresholding(Mat image, int** result)
+Image::Image(string file_loc)
+{
+    cvImage = imread(file_loc, CV_LOAD_IMAGE_GRAYSCALE);
+    mImage = new int*[cvImage.rows];
+    for (int i = 0; i < cvImage.rows; ++i)
+    {
+        mImage[i] = new int[cvImage.cols];
+    }
+    nr_regions = 0;
+}
+
+Image::~Image()
+{
+    for (int i = 0; i < cvImage.rows; ++i)
+        delete[] mImage[i];
+    delete[] mImage;
+
+    for (int i = 0; i < nr_regions; ++i)
+        delete regions[i];
+    delete[] regions;
+}
+
+void Image::thresholding()
 {
 
-    for(int j=0;j<image.rows;j++) 
+    for(int j=0; j<cvImage.rows; j++)
     {
-        result[j] = new int[image.cols];
-        for (int i=0;i<image.cols;i++)
+        mImage[j] = new int[cvImage.cols];
+        for (int i = 0; i < cvImage.cols; i++)
         {
-            int value = (int)image.at<uchar>(j,i);
+            int value = (int)cvImage.at<uchar>(j,i);
 
             if (value > THRESHOLD)
-                result[j][i] = 1;
+                mImage[j][i] = 255;
             else
-                result[j][i] = 0;
+                mImage[j][i] = 0;
         }
     }
 }
 
-void image_segmentation(int** image, int m, int n)
+void Image::segmentation()
 {
-    for (int k = 0; k < m; k++) // height
-    {
-        for (int j = 0; j < n; j++) // width
-        {
-            if (image[k][j] == 1)
-            {
-                image[k][j] = 255;
-            }
-        }
-    }
-
     int i = 0;
 
-    for (int k = 0; k < m; k++) // height
+    for (int k = 0; k < cvImage.rows; k++) // height
     {
-        for (int j = 0; j < n; j++) // width
+        for (int j = 0; j < cvImage.cols; j++) // width
         {
-            if (image[k][j] == 255)
+            if (mImage[k][j] == 255)
             {
                 i++;
-                // region growing algorithm
-                grow_region(image, k, j, m, n, i);
+                grow_region(k, j, i);
             }
         }
     }
+    nr_regions = i;
 }
 
-void grow_region(int** image, int k, int j, int m, int n, int i)
+void Image::find_regions()
 {
+    if (nr_regions <= 0)
+        return;
+
+    regions = new Region*[nr_regions];
+    for (int i = 1; i <= nr_regions; i++)
+    {
+        int top=cvImage.rows, bottom=0, right=cvImage.cols, left=0;
+        for (int y = 0; y < cvImage.rows; y++)
+        {
+            for (int x = 0; x < cvImage.cols; x++)
+            {
+                if (mImage[y][x] == i)
+                {
+                    if (y < top)
+                        top = y;
+
+                    if (y > bottom)
+                        bottom = y;
+
+                    if (x < right)
+                        right = x;
+
+                    if (x > left)
+                        left = x;
+                }
+            }
+        }
+        regions[i-1] = new Region(i, top, bottom, left, right);
+    }
+}
+
+void Image::grow_region(int k, int j, int i)
+{
+    int m = cvImage.rows; // height
+    int n = cvImage.cols; // width
     stack<pair<int, int>> region;
-    region.push(make_pair(k, j));
     region.push(make_pair(-1, -1));
     pair<int, int> current_pos(k, j);
 
@@ -113,36 +181,60 @@ void grow_region(int** image, int k, int j, int m, int n, int i)
         j = current_pos.second;
 
         //top
-        if (k > 0 && image[k-1][j] == 255)
+        if (k > 0 && mImage[k-1][j] == 255)
         {
             region.push(make_pair(k-1, j));
-            image[k-1][j] = i;
+            mImage[k-1][j] = i;
         }
         //bottom
-        if (k < (m-1) && image[k+1][j] == 255)
+        if (k < (m-1) && mImage[k+1][j] == 255)
         {
             region.push(make_pair(k+1, j));
-            image[k+1][j] = i;
+            mImage[k+1][j] = i;
         }
 
         //right
-        if (j < (n-1) && image[k][j+1] == 255)
+        if (j < (n-1) && mImage[k][j+1] == 255)
         {
             region.push(make_pair(k, j+1));
-            image[k][j+1] = i;
+            mImage[k][j+1] = i;
         }
 
         //left
-        if (j > 0 && image[k][j-1] == 255)
+        if (j > 0 && mImage[k][j-1] == 255)
         {
             region.push(make_pair(k, j-1));
-            image[k][j-1] = i;
+            mImage[k][j-1] = i;
         }
 
         current_pos = region.top();
         region.pop();
         if(current_pos.first == -1 || current_pos.second == -1)
             break;
+    }
+}
+
+void Image::print_image()
+{
+    cout << "Image" << endl;
+    for (int x = 0; x < cvImage.rows; ++x)
+    {
+        for (int y = 0; y < cvImage.cols; ++y)
+        {
+            cout << mImage[x][y] << ' ';
+        }
+        cout << endl;
+    }
+
+    cout << "Regions" << endl;
+    for (int i = 0; i < nr_regions; ++i)
+    {
+        cout << "id: " << regions[i]->id
+             << " ,top: " << regions[i]->top
+             << " ,bottom: " << regions[i]->bottom
+             << " ,left: " << regions[i]->left
+             << " ,right: " << regions[i]->right
+             << endl;
     }
 }
 

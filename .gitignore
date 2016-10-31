@@ -8,3 +8,5 @@
 part_a/Makefile
 part_a/CameraCalibration
 part_a/*.xml
+part_b/Makefile
+part_b/part_b
