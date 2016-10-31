@@ -420,6 +420,14 @@ int main(int argc, char* argv[])
                 CV_16SC2, map1, map2);
         }
 
+        std::cout << "Trying something" << std::endl;
+        view = imread(s.imageList[0], 1);
+        if(!view.empty())
+        {
+            remap(view, rview, map1, map2, INTER_LINEAR);
+            imshow("Image View", rview);
+        }
+
         for(size_t i = 0; i < s.imageList.size(); i++ )
         {
             std::cout << "showing img: " << i << std::endl;
@@ -428,7 +436,7 @@ int main(int argc, char* argv[])
                 continue;
             remap(view, rview, map1, map2, INTER_LINEAR);
             imshow("Image View", rview);
-            imwrite("images/set2/undistorted_00"+std::to_string(i)+".jpg", rview);
+            imwrite("images/set2/undistorted_00"+std::to_string(i+1)+".jpg", rview);
             char c = (char)waitKey();
             if( c  == ESC_KEY || c == 'q' || c == 'Q' )
                 break;
@@ -440,7 +448,7 @@ int main(int argc, char* argv[])
             std::cout << "Problem loading file!" << endl;
         remap(view, rview, map1, map2, INTER_LINEAR);
         imshow("Image View", rview);
-        imwrite("images/set4/undistorted_last.jpg", rview);
+        imwrite("images/set2/undistorted_last.jpg", rview);
     }
     //! [show_results]
 
