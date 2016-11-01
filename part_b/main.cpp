@@ -65,14 +65,29 @@ void Region::find_principle_angle(int **image)
 
 int Region::m_kj(int **image, int k, int j)
 {
-    // TODO
-    return 0;
+	int sum = 0;
+	for (t = Region.top; t<Region.bottom; t++) {
+		for (u = Region.left; u<Region.right; u++) {
+			if (image[u][t] == Region.id) {
+				sum += (u^k)*(t^j)
+			}
+		}
+	}
+	return sum;
 }
 
 int Region::mu_kj(int **image, int k, int j)
 {
-    // TODO
-    return 0;
+	int Region::mu_kj(int **image, int k, int j)
+	{
+		int sum2 = 0;
+		for (t = Region.top; t<Region.bottom; t++) {
+			for (u = Region.left; u = Region.right; u++) {
+				if (image[u][t] == Region.id) {
+					sum2 += ((u - centroid.first) ^ k)*((t - centroid.second) ^ j)
+				}
+			}
+			return sum2;
 }
 
 class Image
