@@ -1,3 +1,11 @@
+#include <stack>
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+
 #include <opencv2/calib3d.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/core/utility.hpp>
@@ -6,13 +14,6 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
 
-#include <iostream>
-#include <sstream>
-#include <stack>
-#include <stdio.h>
-#include <string>
-#include <time.h>
-
 #define THRESHOLD 220
 
 using namespace cv;
@@ -20,14 +21,23 @@ using namespace std;
 
 class Region
 {
-    public:
-        int top; // y coordinate
-        int bottom; // y coordinate
-        int left; // x coordinate
-        int right; // x coordinate
-        int id;
+public:
+    int id;
 
-        Region(int id, int top, int bottom, int left, int right);
+    int top; // y coordinate
+    int bottom; // y coordinate
+    int left; // x coordinate
+    int right; // x coordinate
+
+    pair<double, double> centroid; // (x_c, y_c)
+    double principle_angle; // phi
+
+    Region(int id, int top, int bottom, int left, int right);
+    void find_centroid(int** image);
+    void find_principle_angle(int** image);
+private:
+    int m_kj(int** image, int k, int j); // moment kj
+    int mu_kj(int** image, int k, int j); // central moment kj
 };
 
 Region::Region(int id, int top, int bottom, int left, int right)
@@ -39,27 +49,53 @@ Region::Region(int id, int top, int bottom, int left, int right)
     this->right = right;
 }
 
+void Region::find_centroid(int **image)
+{
+    int A = m_kj(image, 0, 0);
+    double x_c = ((double)m_kj(image, 1, 0)) / A;
+    double y_c = ((double)m_kj(image, 0, 1)) / A;
+    centroid = pair<double, double>(x_c, y_c);
+}
+
+void Region::find_principle_angle(int **image)
+{
+    double phi = 1.0/2 * atan2(2*mu_kj(image,1,1), mu_kj(image,2,0) - mu_kj(image,0,2));
+    principle_angle = phi;
+}
+
+int Region::m_kj(int **image, int k, int j)
+{
+    // TODO
+    return 0;
+}
+
+int Region::mu_kj(int **image, int k, int j)
+{
+    // TODO
+    return 0;
+}
+
 class Image
 {
-    public:
-        Mat cvImage;
-        int** mImage;
-        int nr_regions;
-        Region** regions;
+public:
+    Mat cvImage;
+    int** mImage;
+    int nr_regions;
+    Region** regions;
 
-        Image(string file_loc);
-        ~Image();
+    Image(string file_loc);
+    ~Image();
 
-        void thresholding();
-        void segmentation();
-        void find_regions();
-        void find_centroid();
-        void find_principle_angle(Region* region);
+    void thresholding();
+    void segmentation();
+    void find_regions();
+    void find_centroids();
+    void find_principle_angles();
 
-        void print_image();
-    private:
-        // region growing algorithm
-        void grow_region(int k, int j, int i);
+    void print_image();
+private:
+    // region growing algorithm
+    void grow_region(int k, int j, int i);
 };
 
 
