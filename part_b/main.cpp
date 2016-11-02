@@ -47,6 +47,7 @@ Region::Region(int id, int top, int bottom, int left, int right)
     this->bottom = bottom;
     this->left = left;
     this->right = right;
+    this->centroid = pair<double, double>(-1, -1);
 }
 
 void Region::find_centroid(int **image)
@@ -65,29 +66,28 @@ void Region::find_principle_angle(int **image)
 
 int Region::m_kj(int **image, int k, int j)
 {
-	int sum = 0;
-	for (t = Region.top; t<Region.bottom; t++) {
-		for (u = Region.left; u<Region.right; u++) {
-			if (image[u][t] == Region.id) {
-				sum += (u^k)*(t^j)
-			}
-		}
-	}
-	return sum;
+    int sum = 0;
+    for (int t = top; t <= bottom; t++) {
+        for (int u = left; u <= right; u++) {
+            if (image[u][t] == id) {
+                sum += pow(u, k) * pow(t, j);
+            }
+        }
+    }
+    return sum;
 }
 
 int Region::mu_kj(int **image, int k, int j)
 {
-	int Region::mu_kj(int **image, int k, int j)
-	{
-		int sum2 = 0;
-		for (t = Region.top; t<Region.bottom; t++) {
-			for (u = Region.left; u = Region.right; u++) {
-				if (image[u][t] == Region.id) {
-					sum2 += ((u - centroid.first) ^ k)*((t - centroid.second) ^ j)
-				}
-			}
-			return sum2;
+    int sum = 0;
+    for (int t = top; t <= bottom; t++) {
+        for (int u = left; u <= right; u++) {
+            if (image[u][t] == id) {
+                sum += pow((u - centroid.first), k) * pow((t - centroid.second), j);
+            }
+        }
+    }
+    return sum;
 }
 
 class Image
