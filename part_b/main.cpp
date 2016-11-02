@@ -1,5 +1,3 @@
-#include <opencv2/core.hpp>
-
 #include "region.hpp"
 #include "image.hpp"
 
@@ -17,7 +15,6 @@ int main(int argc, char* argv[])
     img->find_regions();
 
     img->print_image();
-
     //delete img;
 }
 

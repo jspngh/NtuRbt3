@@ -33,8 +33,6 @@ public:
     void thresholding();
     void segmentation();
     void find_regions();
-    void find_centroids();
-    void find_principle_angles();
 
     void print_image();
 private:
@@ -130,7 +128,8 @@ void Image::find_regions()
                 }
             }
         }
-        regions[i-1] = new Region(i, top, bottom, left, right);
+        // TODO Jonas: right and left were switched
+        regions[i-1] = new Region(mImage, i, top, bottom, right, left);
     }
 }
 
@@ -183,7 +182,9 @@ void Image::grow_region(int k, int j, int i)
 
 void Image::print_image()
 {
-    cout << "Image" << endl;
+    cout    << "Image [rows x cols]: [" 
+            << cvImage.rows << " x " << cvImage.cols << "]" << endl;
+
     for (int x = 0; x < cvImage.rows; ++x)
     {
         for (int y = 0; y < cvImage.cols; ++y)
@@ -196,12 +197,19 @@ void Image::print_image()
     cout << "Regions" << endl;
     for (int i = 0; i < nr_regions; ++i)
     {
+        double x_c = regions[i]->centroid.first;
+        double y_c = regions[i]->centroid.second;
+        double phi = regions[i]->principle_angle;
+ 
         cout << "id: " << regions[i]->id
-             << " ,top: " << regions[i]->top
-             << " ,bottom: " << regions[i]->bottom
-             << " ,left: " << regions[i]->left
-             << " ,right: " << regions[i]->right
+             << ", top: " << regions[i]->top
+             << ", bottom: " << regions[i]->bottom
+             << ", left: " << regions[i]->left
+             << ", right: " << regions[i]->right
+             << "\ncenter: " << x_c  << " " << y_c
+             << "\nphi: " << phi 
              << endl;
     }
 }
+
 
