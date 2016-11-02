@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project( part_b )
 find_package( OpenCV REQUIRED )
-add_executable( part_b main.cpp region.hpp)
+add_executable( part_b main.cpp image.cpp region.cpp)
 set_property(TARGET part_b PROPERTY CXX_STANDARD 11)
 target_link_libraries( part_b ${OpenCV_LIBS} )

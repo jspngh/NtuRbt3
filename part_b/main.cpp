@@ -1,4 +1,3 @@
-#include "region.hpp"
 #include "image.hpp"
 
 #define THRESHOLD 220
