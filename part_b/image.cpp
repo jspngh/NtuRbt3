@@ -170,3 +170,20 @@ void Image::print_image()
              << endl;
     }
 }
+
+void Image::display_region_metadata()
+{
+    for (int i = 0; i < nr_regions; i++)
+    {
+        // convert to colored image, so that the metadata can have colors
+        cv::Mat cvImage_rgb(this->cvImage.size(), CV_8UC3);
+        cv::cvtColor(this->cvImage, cvImage_rgb, CV_GRAY2RGB);
+        
+        double x_c = regions[i]->centroid.first;
+        double y_c = regions[i]->centroid.second;
+        Point center = Point(x_c,y_c);
+        cv::drawMarker(cvImage_rgb,center, Scalar(0, 0, 255), cv::MARKER_SQUARE, 7, 2);
+        imshow( "Display window", cvImage_rgb);   
+        waitKey(0);
+    }
+}

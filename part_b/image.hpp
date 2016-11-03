@@ -40,6 +40,7 @@ public:
     void find_regions();
 
     void print_image();
+    void display_region_metadata();
 private:
     // region growing algorithm
     void grow_region(int k, int j, int i);
