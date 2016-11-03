@@ -5,7 +5,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-    Image* img = new Image("./images/er7-3.jpg");
+    Image* img = new Image("./images/er7-4.jpg");
 
     img->thresholding();
     img->segmentation();

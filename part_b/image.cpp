@@ -206,20 +206,21 @@ void Image::display_region_metadata()
         double x_c = regions[i]->centroid.first;
         double y_c = regions[i]->centroid.second;
 
-        double x_b = x_c - 100 * sin(regions[i]->principle_angle);
-        double y_b = y_c - 100;
-        double x_e = x_c + 100 * sin(regions[i]->principle_angle);
-        double y_e = y_c + 100;
+        double x_b = x_c - 100;
+        double y_b = y_c - 100 * tan(regions[i]->principle_angle);
+        double x_e = x_c + 100;
+        double y_e = y_c + 100 * tan(regions[i]->principle_angle);
 
         Point begin = Point(x_b, y_b);
         Point end = Point(x_e, y_e);
+
         cv::line(cvImage_rgb, begin, end, Scalar(255, 0, 0), 4);
 
         Point center = Point(x_c,y_c);
         cv::drawMarker(cvImage_rgb, center, Scalar(0, 0, 255), cv::MARKER_SQUARE, 7, 2);
     }
 
-    namedWindow("processed image", 0);
+    namedWindow("processed image", CV_WINDOW_NORMAL);
     resizeWindow("processed image", 1000, 1000);
     imshow( "processed image", cvImage_rgb);
     waitKey(0);

@@ -25,10 +25,10 @@ void Region::find_principle_angle()
 {
     double tmp1 = 2.0 * central_moment(1,1);
     std::cout << tmp1 << std::endl;
-    double tmp2 = central_moment(2,0) - central_moment(0,2);
+    double tmp2= central_moment(2,0) - central_moment(0,2);
     std::cout << tmp2 << std::endl;
     double phi = 1.0/2.0 * atan2(tmp1, tmp2);
-    std::cout << phi << std::endl;
+    std::cout << phi * 180 / M_PI << std::endl;
     principle_angle = phi;
 }
 
