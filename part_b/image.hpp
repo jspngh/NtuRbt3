@@ -3,8 +3,6 @@
 
 #include <stack>
 #include <string>
-#include <iostream>
-#include <sstream>
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
@@ -19,7 +17,8 @@
 
 #include "region.hpp"
 
-#define THRESHOLD 220
+#define SEGMENTATION_THRESHOLD 200
+#define REGION_THRESHOLD 10
 
 using namespace cv;
 using namespace std;
@@ -43,7 +42,7 @@ public:
     void display_region_metadata();
 private:
     // region growing algorithm
-    void grow_region(int k, int j, int i);
+    bool grow_region(int k, int j, int i);
 };
 
 #endif

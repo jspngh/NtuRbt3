@@ -24,7 +24,6 @@ Image::~Image()
 
 void Image::thresholding()
 {
-
     for(int j=0; j<cvImage.rows; j++)
     {
         mImage[j] = new int[cvImage.cols];
@@ -32,10 +31,14 @@ void Image::thresholding()
         {
             int value = (int)cvImage.at<uchar>(j,i);
 
-            if (value > THRESHOLD)
+            if (value > SEGMENTATION_THRESHOLD)
+            {
                 mImage[j][i] = 255;
+            }
             else
+            {
                 mImage[j][i] = 0;
+            }
         }
     }
 }
@@ -51,7 +54,9 @@ void Image::segmentation()
             if (mImage[k][j] == 255)
             {
                 i++;
-                grow_region(k, j, i);
+                bool valid_region = grow_region(k, j, i);
+                if (!valid_region)
+                    i--;
             }
         }
     }
@@ -66,7 +71,7 @@ void Image::find_regions()
     regions = new Region*[nr_regions];
     for (int i = 1; i <= nr_regions; i++)
     {
-        int top=cvImage.rows, bottom=0, right=cvImage.cols, left=0;
+        int top=cvImage.rows, bottom=0, left=cvImage.cols, right=0;
         for (int y = 0; y < cvImage.rows; y++)
         {
             for (int x = 0; x < cvImage.cols; x++)
@@ -79,26 +84,27 @@ void Image::find_regions()
                     if (y > bottom)
                         bottom = y;
 
-                    if (x < right)
-                        right = x;
-
-                    if (x > left)
+                    if (x < left)
                         left = x;
+
+                    if (x > right)
+                        right = x;
                 }
             }
         }
-        // TODO Jonas: right and left were switched
-        regions[i-1] = new Region(mImage, i, top, bottom, right, left);
+        regions[i-1] = new Region(mImage, i, top, bottom, left, right);
     }
 }
 
-void Image::grow_region(int k, int j, int i)
+bool Image::grow_region(int k, int j, int i)
 {
     int m = cvImage.rows; // height
     int n = cvImage.cols; // width
     stack<pair<int, int>> region;
     region.push(make_pair(-1, -1));
     pair<int, int> current_pos(k, j);
+
+    int region_size = 0;
 
     while(!region.empty())
     {
@@ -110,12 +116,14 @@ void Image::grow_region(int k, int j, int i)
         {
             region.push(make_pair(k-1, j));
             mImage[k-1][j] = i;
+            region_size++;
         }
         //bottom
         if (k < (m-1) && mImage[k+1][j] == 255)
         {
             region.push(make_pair(k+1, j));
             mImage[k+1][j] = i;
+            region_size++;
         }
 
         //right
@@ -123,6 +131,7 @@ void Image::grow_region(int k, int j, int i)
         {
             region.push(make_pair(k, j+1));
             mImage[k][j+1] = i;
+            region_size++;
         }
 
         //left
@@ -130,6 +139,7 @@ void Image::grow_region(int k, int j, int i)
         {
             region.push(make_pair(k, j-1));
             mImage[k][j-1] = i;
+            region_size++;
         }
 
         current_pos = region.top();
@@ -137,6 +147,20 @@ void Image::grow_region(int k, int j, int i)
         if(current_pos.first == -1 || current_pos.second == -1)
             break;
     }
+
+    if (region_size < REGION_THRESHOLD)
+    {
+        for (int y = 0; y < cvImage.rows; ++y)
+        {
+            for (int x = 0; x < cvImage.cols; ++x)
+            {
+                if (mImage[y][x] == i)
+                    mImage[y][x] = 0;
+            }
+        }
+        return false;
+    }
+    return true;
 }
 
 void Image::print_image()
@@ -144,11 +168,11 @@ void Image::print_image()
     cout    << "Image [rows x cols]: ["
             << cvImage.rows << " x " << cvImage.cols << "]" << endl;
 
-    for (int x = 0; x < cvImage.rows; ++x)
+    for (int y = 0; y < cvImage.rows; ++y)
     {
-        for (int y = 0; y < cvImage.cols; ++y)
+        for (int x = 0; x < cvImage.cols; ++x)
         {
-            cout << mImage[x][y] << ' ';
+            cout << mImage[y][x] << ' ';
         }
         cout << endl;
     }
@@ -173,17 +197,30 @@ void Image::print_image()
 
 void Image::display_region_metadata()
 {
+    // convert to colored image, so that the metadata can have colors
+    cv::Mat cvImage_rgb(this->cvImage.size(), CV_8UC3);
+    cv::cvtColor(this->cvImage, cvImage_rgb, CV_GRAY2RGB);
+
     for (int i = 0; i < nr_regions; i++)
     {
-        // convert to colored image, so that the metadata can have colors
-        cv::Mat cvImage_rgb(this->cvImage.size(), CV_8UC3);
-        cv::cvtColor(this->cvImage, cvImage_rgb, CV_GRAY2RGB);
-        
         double x_c = regions[i]->centroid.first;
         double y_c = regions[i]->centroid.second;
+
+        double x_b = x_c - 100 * sin(regions[i]->principle_angle);
+        double y_b = y_c - 100;
+        double x_e = x_c + 100 * sin(regions[i]->principle_angle);
+        double y_e = y_c + 100;
+
+        Point begin = Point(x_b, y_b);
+        Point end = Point(x_e, y_e);
+        cv::line(cvImage_rgb, begin, end, Scalar(255, 0, 0), 4);
+
         Point center = Point(x_c,y_c);
-        cv::drawMarker(cvImage_rgb,center, Scalar(0, 0, 255), cv::MARKER_SQUARE, 7, 2);
-        imshow( "Display window", cvImage_rgb);   
-        waitKey(0);
+        cv::drawMarker(cvImage_rgb, center, Scalar(0, 0, 255), cv::MARKER_SQUARE, 7, 2);
     }
+
+    namedWindow("processed image", 0);
+    resizeWindow("processed image", 1000, 1000);
+    imshow( "processed image", cvImage_rgb);
+    waitKey(0);
 }

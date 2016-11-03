@@ -23,9 +23,12 @@ void Region::find_centroid()
 
 void Region::find_principle_angle()
 {
-    double tmp1 = 2.0*central_moment(1,1);
+    double tmp1 = 2.0 * central_moment(1,1);
+    std::cout << tmp1 << std::endl;
     double tmp2 = central_moment(2,0) - central_moment(0,2);
-    double phi = 1.0/2.0 * atan2(tmp1,tmp2);
+    std::cout << tmp2 << std::endl;
+    double phi = 1.0/2.0 * atan2(tmp1, tmp2);
+    std::cout << phi << std::endl;
     principle_angle = phi;
 }
 
@@ -46,10 +49,10 @@ int Region::moment(int k, int j)
 int Region::central_moment(int k, int j)
 {
     int sum = 0;
-    for (int t = top; t <= bottom; t++) {
-        for (int u = left; u <= right; u++) {
-            if (this->image[u][t] == id) {
-                sum += pow((u - centroid.first), k) * pow((t - centroid.second), j);
+    for (int y = top; y <= bottom; y++) {
+        for (int x = left; x <= right; x++) {
+            if (this->image[y][x] == id) {
+                sum += pow((x - centroid.first), k) * pow((y - centroid.second), j);
             }
         }
     }

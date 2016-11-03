@@ -2,6 +2,8 @@
 #define M_REGION
 
 #include <math.h>
+#include <iostream>
+#include <sstream>
 #include <stack>
 
 class Region
