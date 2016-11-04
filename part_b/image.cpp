@@ -22,6 +22,11 @@ Image::~Image()
     delete[] regions;
 }
 
+Mat Image::get_cvImage_result()
+{
+    return this->cvImage_result;
+}
+
 void Image::thresholding()
 {
     for(int j=0; j<cvImage.rows; j++)
@@ -195,6 +200,21 @@ void Image::print_image()
     }
 }
 
+void Image::print_region_metadata()
+{
+
+    cout << "Number of regions found: " << this->nr_regions << endl;
+    for (int i = 0; i < nr_regions; ++i)
+    {
+        double x_c = regions[i]->centroid.first;
+        double y_c = regions[i]->centroid.second;
+        double phi = regions[i]->principle_angle;
+
+        cout << round(x_c)  << " " << round(y_c) << " "
+             << round((phi*180.0/3.141592)) << endl;
+    }
+}
+
 void Image::display_region_metadata()
 {
     // convert to colored image, so that the metadata can have colors
@@ -219,9 +239,10 @@ void Image::display_region_metadata()
         Point center = Point(x_c,y_c);
         cv::drawMarker(cvImage_rgb, center, Scalar(0, 0, 255), cv::MARKER_SQUARE, 7, 2);
     }
+    this->cvImage_result = cvImage_rgb;
 
-    namedWindow("processed image", CV_WINDOW_NORMAL);
-    resizeWindow("processed image", 1000, 1000);
+    //namedWindow("processed image", CV_WINDOW_NORMAL);
+    //resizeWindow("processed image", 1000, 1000);
     imshow( "processed image", cvImage_rgb);
     waitKey(0);
 }

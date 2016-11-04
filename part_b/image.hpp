@@ -27,6 +27,7 @@ class Image
 {
 public:
     Mat cvImage;
+    Mat cvImage_result;
     int** mImage;
     int nr_regions;
     Region** regions;
@@ -40,6 +41,8 @@ public:
 
     void print_image();
     void display_region_metadata();
+    void print_region_metadata();
+    Mat get_cvImage_result();
 private:
     // region growing algorithm
     bool grow_region(int k, int j, int i);
