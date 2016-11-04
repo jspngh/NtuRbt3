@@ -31,6 +31,7 @@ public:
     int** mImage;
     int nr_regions;
     Region** regions;
+    bool reading_error;
 
     Image(string file_loc);
     ~Image();

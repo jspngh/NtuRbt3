@@ -3,6 +3,7 @@
 Image::Image(string file_loc)
 {
     cvImage = imread(file_loc, CV_LOAD_IMAGE_GRAYSCALE);
+    this->reading_error = cvImage.data == NULL;
     mImage = new int*[cvImage.rows];
     for (int i = 0; i < cvImage.rows; ++i)
     {
