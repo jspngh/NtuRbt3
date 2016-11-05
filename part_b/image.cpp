@@ -3,7 +3,11 @@
 Image::Image(string file_loc)
 {
     cvImage = imread(file_loc, CV_LOAD_IMAGE_GRAYSCALE);
-    this->reading_error = cvImage.data == NULL;
+
+    reading_error = cvImage.data == NULL;
+    if (reading_error)
+        return;
+
     mImage = new int*[cvImage.rows];
     for (int i = 0; i < cvImage.rows; ++i)
     {
@@ -154,6 +158,7 @@ bool Image::grow_region(int k, int j, int i)
             break;
     }
 
+    // if the region is too small, ignore it
     if (region_size < REGION_THRESHOLD)
     {
         for (int y = 0; y < cvImage.rows; ++y)
@@ -169,7 +174,7 @@ bool Image::grow_region(int k, int j, int i)
     return true;
 }
 
-void Image::print_image()
+void Image::print_debug_info()
 {
     cout    << "Image [rows x cols]: ["
             << cvImage.rows << " x " << cvImage.cols << "]" << endl;
@@ -232,18 +237,17 @@ void Image::display_region_metadata()
         double x_e = x_c + 100;
         double y_e = y_c + 100 * tan(regions[i]->principle_angle);
 
+        Point center = Point(x_c,y_c);
         Point begin = Point(x_b, y_b);
         Point end = Point(x_e, y_e);
 
         cv::line(cvImage_rgb, begin, end, Scalar(255, 0, 0), 4);
-
-        Point center = Point(x_c,y_c);
         cv::drawMarker(cvImage_rgb, center, Scalar(0, 0, 255), cv::MARKER_SQUARE, 7, 2);
     }
     this->cvImage_result = cvImage_rgb;
 
-    //namedWindow("processed image", CV_WINDOW_NORMAL);
-    //resizeWindow("processed image", 1000, 1000);
+    // namedWindow("processed image", CV_WINDOW_NORMAL);
+    // resizeWindow("processed image", 1000, 1000);
     imshow( "processed image", cvImage_rgb);
     waitKey(0);
 }

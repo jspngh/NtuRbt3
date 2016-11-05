@@ -11,7 +11,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     string file_name;
-    cout << "Please, enter the file name ";
+    cout << "Please, enter the file name, e.g.: ./images/er7-1.jpg" << endl;
     getline (cin,file_name);
 
     Image* img = new Image(file_name);
@@ -28,12 +28,12 @@ int main(int argc, char* argv[])
 
     img->print_region_metadata();
 
-    // uncomment to display the result
-    // img->display_region_metadata();
+    // visualization of the result
+    //img->display_region_metadata();
 
-    // uncomment to store the resulting image
+    // store the resulting image
     //cv::imwrite("./images/er7-3-result.jpg", img->get_cvImage_result());
-    
+
     delete img;
 }
 

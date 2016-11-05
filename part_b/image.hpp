@@ -40,7 +40,7 @@ public:
     void segmentation();
     void find_regions();
 
-    void print_image();
+    void print_debug_info();
     void display_region_metadata();
     void print_region_metadata();
     Mat get_cvImage_result();
